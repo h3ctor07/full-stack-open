@@ -1,5 +1,15 @@
 import { useState } from 'react'
 
+const Button = ({onClick, text}) => <button onClick={onClick}>{text}</button>
+const QuoteSection = ({title, quote, points}) => (
+  <>
+    <h1>{title}</h1>
+    <p>{quote}</p>
+    <p>has {points} votes</p>
+  </>
+)
+
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -12,12 +22,17 @@ const App = () => {
   ]
    
   const [selected, setSelected] = useState(0)
-
   const [points, setPoints] = useState(new Uint8Array(anecdotes.length))
-  console.log(points)
+  const maxIndex =  points.indexOf(Math.max(...points))
 
   const randomize = () => {
-    setSelected(Math.floor(Math.random() * (anecdotes.length)))
+    let randomNumber
+    do{
+       randomNumber = Math.floor(Math.random() * (anecdotes.length))
+       console.log(randomNumber)
+    }
+    while(randomNumber == selected)
+    setSelected(randomNumber)
   }
 
   const addVote = () =>{
@@ -28,10 +43,10 @@ const App = () => {
 
   return (
     <div>
-      <p>{anecdotes[selected]}</p>
-      <p>has {points[selected]} votes</p>
-      <button onClick={addVote}>vote</button>
-      <button onClick={randomize}>next quote</button>
+      <QuoteSection title="Anecdote of the day" quote={anecdotes[selected]} points={points[selected]} />
+      <Button onClick={addVote} text="Vote" />
+      <Button onClick={randomize} text="Next Quote"/>
+      <QuoteSection title="Anecdote with most votes" quote={anecdotes[maxIndex]} points={points[maxIndex]} />
     </div>
   )
 }
