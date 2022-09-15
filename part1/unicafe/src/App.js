@@ -6,11 +6,30 @@ const Button = (props) =>{
   )
 }
 
-const Display = (props) =>{
-  return (
-    <p>{props.text}: {props.number}</p>
+const Statistics = ({clicks}) =>{
+  const all = Object.values(clicks).reduce((prev, current) => prev + current, 0)
+  const avg = (clicks.good - clicks.bad) / all
+  const pos = `${(clicks.good / all) *100}%`
+    
+  if (Object.values(clicks).every(x => x === 0)){
+    return <p>No feedback given</p>
+  }
+
+  return(
+    <table>
+      <tbody>
+      <StatisticLine text="good" number={clicks.good} />
+      <StatisticLine text="neutral" number={clicks.neutral} />
+      <StatisticLine text="bad" number={clicks.bad} />
+      <StatisticLine text="all" number={all} />
+      <StatisticLine text="average" number={avg} />
+      <StatisticLine text="positive" number={pos} />
+      </tbody>
+    </table>    
   )
 }
+
+const StatisticLine = ({text, number}) => (<tr><td>{text}</td><td>{number}</td></tr>)
 
 const App = () =>{
   const [clicks, setClicks] = useState({good: 0, neutral:0, bad: 0})
@@ -18,6 +37,7 @@ const App = () =>{
   const handleClick = (value) => () =>{
     setClicks({...clicks, [`${value}`]: clicks[value] + 1 })
   }
+
 
   console.log(clicks)
 
@@ -28,9 +48,7 @@ const App = () =>{
       <Button text="Neutral" onClick={handleClick("neutral")} />
       <Button text="Bad" onClick={handleClick("bad")} />
       <h2>statistics</h2>
-      <Display text="Good" number={clicks.good} />
-      <Display text="Neutral" number={clicks.neutral} />
-      <Display text="Bad" number={clicks.bad} />
+      <Statistics clicks = {clicks} />
     </div>
   )
 
