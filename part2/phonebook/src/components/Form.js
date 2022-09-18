@@ -1,6 +1,4 @@
 const Form = (props) =>{
-    console.log(props)
-    console.log(typeof props.onChange);
     return (
     <form onSubmit={props.onSubmit}>
         {Object.keys(props.newPerson).map(key => (
