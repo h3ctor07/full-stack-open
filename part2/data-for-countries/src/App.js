@@ -5,23 +5,53 @@ import Results from "./components/Results"
 import Search from "./components/Search"
 
 const App = () =>{
-  const [data, setData] = useState([])
+  const [countries, setCountries] = useState([])
   const [search, setSearch] = useState('')
+  const [weather, setWeather] = useState({})
 
-  const hook = () =>{
+  //countries API
+  const countriesHook = () =>{
     axios
       .get("https://restcountries.com/v3.1/all")
       .then(response => {
-        console.log(response.data)
-        setData(response.data)
+        if (search !== ""){
+          setCountries(response.data.filter(country => 
+            country.name.common.toUpperCase().includes(search.toUpperCase())
+          ))
+        } else {
+          setCountries([])
+        }
       })
   }
-  useEffect(hook,[])
-  // console.log(data.map(x => x.name.common.toUpperCase()));
-  
+  useEffect(countriesHook,[search])
 
+  const weatherHook = () => {
+    if (countries.length === 1){
+      const [lat, long] = countries[0].latlng
+      const API_KEY = process.env.REACT_APP_API_KEY
 
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=${API_KEY}&units=metric`
+      axios
+        .get(url)
+        .then(response => {
+          const data = response.data
+          console.log(data);
+          setWeather({
+            name: countries[0].capital[0],
+            temp: data.main.temp,
+            wind: data.wind.speed,
+            icon: data.weather[0].icon,
+            desc: data.weather[0].description
+          })
+        })
+    }
+  }
 
+  useEffect(weatherHook, [countries])
+
+  console.log(weather);
+
+  //EVENT HANDLERS
   const handleSearch = (event) => {
     setSearch(event.target.value)   
   }
@@ -32,16 +62,16 @@ const App = () =>{
     
   }
 
-  const filteredCountries = search
-    ? data.filter(x => x.name.common.toUpperCase().includes(search.toUpperCase()))
-    : []
 
-    console.log('filtered:', filteredCountries)
+  //Weather
 
   return(
     <div>
       <Search search={search} handleSearch={handleSearch}  />
-      <Results results={filteredCountries} handleButton={handleButton} />
+      <Results 
+        results={countries} 
+        handleButton={handleButton}
+        weather={weather}/>
     </div>
   )
 }

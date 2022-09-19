@@ -1,4 +1,4 @@
-const Results = ({results, handleButton}) => {
+const Results = ({results, handleButton, weather}) => {
     if (results.length === 0){
         return (<p>Type to filter</p>)
     } else if (results.length === 1){
@@ -17,6 +17,10 @@ const Results = ({results, handleButton}) => {
             }
           </ul>
           <img src={results[0].flags.png} alt={`flag of results`}/>
+          <h2>Weather in {weather.name}</h2>
+          <p>temperature: {weather.temp} Celsius</p>
+          <img src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`} alt={weather.desc}/>
+          <p>wind: {weather.wind} m/s</p>
         </div>
       )
     } else if (results.length <= 10){
