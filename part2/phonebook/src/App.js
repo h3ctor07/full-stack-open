@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import axios from "axios"
+import services from "./services/phonebook"
+
 import Filter from "./components/Filter"
 import Form from "./components/Form"
 import Persons from "./components/Persons"
@@ -11,18 +12,14 @@ const App = () => {
     name: '', number: ''
   })
   const [filter, setFilter] = useState('')
-
-  const hook = () =>{
-    console.log('effect')
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => {
-        console.log('response fulfilled');
-        setPersons(response.data)
+  
+  useEffect(() => {
+    services
+      .getAll()
+      .then(contacts => {
+        setPersons(contacts)
       })
-  }
-  useEffect(hook, [])
-  console.log('render ', persons.length, ' contacts');
+  }, [])
 
   // event handlers
   const handleNewPerson = (key) => (event) =>{
@@ -37,9 +34,25 @@ const App = () => {
       alert(`${newPerson.name} is already in the phonebook`)
       return
     }
+
+    services
+      .create(newPerson)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewPerson({name:'', number:''})
+      })
+  }
+
+  const deletionOf = (id) => {
+    const name = persons.find(person => person.id === id).name
+    if(window.confirm(`Are you sure you want to delete ${name}?`)){
+      services
+        .remove(id)
+      setPersons(persons.filter(person => (
+        person.id !== id
+      )))
+    }
     
-    setPersons(persons.concat(newPerson))
-    setNewPerson({name:'', number:''})
   }
 
   //logic for filtering phonebook
@@ -54,7 +67,9 @@ const App = () => {
       <h2>Add a new</h2>
       <Form onSubmit={addPerson} onChange={handleNewPerson} newPerson={newPerson} />
       <h2>Numbers</h2>
-      <Persons persons={filteredPersons}/>
+      <Persons 
+        persons={filteredPersons}
+        deletionOf = {deletionOf}/>
     </div>
   )
 }
