@@ -28,10 +28,26 @@ const App = () => {
 
   const handleFilter = (event) => setFilter(event.target.value) 
 
+  const updatePerson = () => {
+    if(window.confirm(`${newPerson.name} is already added to the phonebook, replace the old number with the new one?`)){
+      const personToUpdate = persons.find(person => newPerson.name === person.name)
+      const updatedContact = {...personToUpdate, number: newPerson.number}
+      services
+        .update(updatedContact)
+        .then(response => {
+          setPersons(persons.map(person => 
+            person.name !== newPerson.name
+              ? person
+              : response
+          ))
+        })
+    }
+  }
+
   const addPerson = (event) =>{
     event.preventDefault()
     if(persons.some(x => x.name.toUpperCase() === newPerson.name.toUpperCase())){
-      alert(`${newPerson.name} is already in the phonebook`)
+      updatePerson()
       return
     }
 
