@@ -5,9 +5,9 @@ import Filter from "./components/Filter"
 import Form from "./components/Form"
 import Persons from "./components/Persons"
 
-const Notification = ({message}) => {
+const Notification = ({message, color}) => {
   const messageStyle = {
-  color: "green",
+  color: `${color}`,
   background: "lightgrey",
   fontSize: 20,
   borderStyle: "solid",
@@ -19,6 +19,8 @@ const Notification = ({message}) => {
   if (message === '') {
     return null
   }
+  console.log(color)
+  console.log(messageStyle)
 
   return (
     <div style={messageStyle}>
@@ -35,6 +37,8 @@ const App = () => {
   })
   const [filter, setFilter] = useState('')
   const [message, setMessage] = useState('')  
+  const [alertColor, setAlertColor] = useState('')
+
   useEffect(() => {
     services
       .getAll()
@@ -57,6 +61,7 @@ const App = () => {
       services
         .update(updatedContact)
         .then(response => {
+          setAlertColor('blue')
           setPersons(persons.map(person => 
             person.name !== newPerson.name
               ? person
@@ -69,6 +74,18 @@ const App = () => {
             setMessage('')
           }, 5000)
           setNewPerson({name:'', number:''})
+        })
+        //catch error if contact has been deleted before trying to update it. 
+        .catch(error => {
+          setAlertColor('red')
+          console.log(error)
+          setMessage(
+            `Information of ${newPerson.name} has already been removed from the server`
+          )
+          setTimeout(() => {
+            setMessage('')
+          }, 5000)
+          setPersons(persons.filter(p => p.name !== newPerson.name))
         })
     }
   }
@@ -85,6 +102,7 @@ const App = () => {
     services
       .create(newPerson)
       .then(returnedPerson => {
+        setAlertColor('green')
         setPersons(persons.concat(returnedPerson))
         setMessage(
           `Added ${newPerson.name}`
@@ -118,7 +136,7 @@ const App = () => {
   return(
     <div>
       <h2>Phonebook</h2>
-      <Notification message={message}/>
+      <Notification message={message} color={alertColor}/>
       <Filter value={filter} onChange={handleFilter} />
       <h2>Add a new</h2>
       <Form onSubmit={addPerson} onChange={handleNewPerson} newPerson={newPerson} />
