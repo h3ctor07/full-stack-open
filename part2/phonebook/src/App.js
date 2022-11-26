@@ -5,6 +5,28 @@ import Filter from "./components/Filter"
 import Form from "./components/Form"
 import Persons from "./components/Persons"
 
+const Notification = ({message}) => {
+  const messageStyle = {
+  color: "green",
+  background: "lightgrey",
+  fontSize: 20,
+  borderStyle: "solid",
+  borderRadius: 5,
+  padding: 10,
+  marginBottom: 10,
+}
+  
+  if (message === '') {
+    return null
+  }
+
+  return (
+    <div style={messageStyle}>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
   // states for persons objects, new person from form, and filter
   const [persons, setPersons] = useState([])
@@ -12,7 +34,7 @@ const App = () => {
     name: '', number: ''
   })
   const [filter, setFilter] = useState('')
-  
+  const [message, setMessage] = useState('')  
   useEffect(() => {
     services
       .getAll()
@@ -40,6 +62,13 @@ const App = () => {
               ? person
               : response
           ))
+          setMessage(
+            `Updated ${newPerson.name}`
+          )
+          setTimeout(() => {
+            setMessage('')
+          }, 5000)
+          setNewPerson({name:'', number:''})
         })
     }
   }
@@ -51,12 +80,22 @@ const App = () => {
       return
     }
 
+    
+
     services
       .create(newPerson)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
+        setMessage(
+          `Added ${newPerson.name}`
+        )
+        setTimeout(() => {
+          setMessage('')
+        }, 5000)
         setNewPerson({name:'', number:''})
       })
+
+      
   }
 
   const deletionOf = (id) => {
@@ -79,6 +118,7 @@ const App = () => {
   return(
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message}/>
       <Filter value={filter} onChange={handleFilter} />
       <h2>Add a new</h2>
       <Form onSubmit={addPerson} onChange={handleNewPerson} newPerson={newPerson} />
