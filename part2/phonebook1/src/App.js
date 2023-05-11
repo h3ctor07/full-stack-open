@@ -10,7 +10,7 @@ function App() {
     { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ]);
-  const [inputs, setInputs] = useState({nameField:'', numberField:'', searchField:''})
+  const [inputs, setInputs] = useState({})
 
   //change handlers
   const handleChange = (event) => {
@@ -50,7 +50,8 @@ function App() {
       <Filter handler={handleChange} value={inputs.searchField} />
       <h2>Add a new</h2>
       <Form addPerson={addPerson}
-      handler={handleChange}
+      nameHandler={handleChange}
+      numberHandler={handleChange}
       inputs={inputs} />
       <h2>Numbers:</h2>
       <ul>
